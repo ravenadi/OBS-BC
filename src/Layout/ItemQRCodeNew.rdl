@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>82a9c680-d7ba-4092-bd26-97202aeeecfb</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix2">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>0.76723in</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.72123in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="EncodeStr2">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!EncodeStr.Value</Value>
+                                  <Style>
+                                    <FontFamily>IDAutomation2D</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>EncodeStr</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>1pt</PaddingLeft>
+                            <PaddingTop>1pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="Details2" />
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet_Result</DataSetName>
+            <Top>0in</Top>
+            <Left>0.02361in</Left>
+            <Height>0.72123in</Height>
+            <Width>0.76723in</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Textbox Name="Textbox6">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=Last(Fields!OBSItemName_Item.Value, "DataSet_Result")</Value>
+                    <Style>
+                      <FontFamily>Calibri</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Left</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox4</rd:DefaultName>
+            <Top>0in</Top>
+            <Left>0.79084in</Left>
+            <Height>0.72123in</Height>
+            <Width>1.25641in</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <VerticalAlign>Top</VerticalAlign>
+              <PaddingLeft>1pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Image Name="Image2">
+            <Source>Database</Source>
+            <Value>=First(Fields!cominfoPicture.Value, "DataSet_Result")</Value>
+            <MIMEType>image/jpeg</MIMEType>
+            <Sizing>FitProportional</Sizing>
+            <Top>0.72123in</Top>
+            <Left>0in</Left>
+            <Height>0.34176in</Height>
+            <Width>0.86028in</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Image>
+          <Textbox Name="Textbox7">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=First(Fields!No.Value, "DataSet_Result")</Value>
+                    <Style>
+                      <FontFamily>Calibri</FontFamily>
+                      <FontSize>16pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Center</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox5</rd:DefaultName>
+            <Top>0.72123in</Top>
+            <Left>0.86028in</Left>
+            <Height>0.34176in</Height>
+            <Width>1.14859in</Width>
+            <ZIndex>3</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>2.7cm</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>5.20002cm</Width>
+      <Page>
+        <PageHeight>3.2cm</PageHeight>
+        <PageWidth>5.7cm</PageWidth>
+        <LeftMargin>0.25cm</LeftMargin>
+        <RightMargin>0.25cm</RightMargin>
+        <TopMargin>0.25cm</TopMargin>
+        <BottomMargin>0.25cm</BottomMargin>
+        <ColumnSpacing>1.27cm</ColumnSpacing>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <EmbeddedImages>
+    <EmbeddedImage Name="download">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="No">
+          <DataField>No</DataField>
+        </Field>
+        <Field Name="EncodeStr">
+          <DataField>EncodeStr</DataField>
+        </Field>
+        <Field Name="OBSItemName_Item">
+          <DataField>OBSItemName_Item</DataField>
+        </Field>
+        <Field Name="cominfoPicture">
+          <DataField>cominfoPicture</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>
