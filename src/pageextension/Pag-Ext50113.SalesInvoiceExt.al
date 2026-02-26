@@ -24,7 +24,8 @@ pageextension 50113 "Sales Invoice Ext" extends "Sales Invoice"
             {
                 ApplicationArea = All;
                 TableRelation = "Sales Header"."No.";
-                Editable = false;
+                Editable = true;
+                ShowMandatory = true;
 
                 // trigger OnLookup("Blanket Sales Order No.")
                 // var

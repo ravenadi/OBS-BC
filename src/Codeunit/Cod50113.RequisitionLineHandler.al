@@ -148,6 +148,8 @@ codeunit 50113 "Requisition Line Handler"
     local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean; OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLineOrigin: Record "Item Journal Line")
     begin
         ItemLedgerEntry.Comment := ItemJournalLine.Comment;
+        // propagate bin code from journal line to ledger entry (added field 50201 on extension)
+        ItemLedgerEntry."Bin Code" := ItemJournalLine."Bin Code";
     end;
 
     // Update the trasfer note from the Tranfer line to Posted Transfer Note.

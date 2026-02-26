@@ -237,16 +237,6 @@ report 50126 "Remittance Advice - Custom"
                         AutoFormatExpression = "Vendor Ledger Entry"."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(AmtLCY_DtldVendLedgEntry; -"Amount (LCY)")
-                    {
-                        AutoFormatExpression = GLSetup."LCY Code";
-                        AutoFormatType = 1;
-                    }
-                    column(VendLedgEntry3AmountLCY; -VendLedgEntry3."Amount (LCY)")
-                    {
-                        AutoFormatExpression = GLSetup."LCY Code";
-                        AutoFormatType = 1;
-                    }
                     column(VendLedgEntry3CurrCode; CurrencyCode(VendLedgEntry3."Currency Code"))
                     {
                     }
@@ -271,7 +261,7 @@ report 50126 "Remittance Advice - Custom"
                         VendLedgEntry3.Get("Applied Vend. Ledger Entry No.");
                         if "Vendor Ledger Entry No." = "Applied Vend. Ledger Entry No." then
                             CurrReport.Skip();
-                        VendLedgEntry3.CalcFields(Amount, "Remaining Amount", "Amount (LCY)");
+                        VendLedgEntry3.CalcFields(Amount, "Remaining Amount");
                         LineAmount := VendLedgEntry3.Amount - VendLedgEntry3."Remaining Amount";
                         LineDiscount :=
                           CurrExchRate.ExchangeAmtFCYToFCY(
@@ -362,7 +352,8 @@ report 50126 "Remittance Advice - Custom"
             begin
                 Vend.Get("Vendor No.");
                 FormatAddr.Vendor(VendorAddr, Vend);
-                CalcFields(Amount);
+                // CalcFields(Amount);
+                CalcFields(Amount, "Amount (LCY)");
             end;
 
             trigger OnPreDataItem()

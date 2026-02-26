@@ -55,9 +55,9 @@ codeunit 50142 "Auto Apply After Consolidation"
         VendorLedgEntry.SetRange("Document No.", AppliesToDocNo);
         VendorLedgEntry.SetRange(Open, true);
         // CRITICAL FIX: Include both Invoice AND Credit Memo
-        VendorLedgEntry.SetFilter("Document Type", '%1|%2',
-            VendorLedgEntry."Document Type"::Invoice,
-            VendorLedgEntry."Document Type"::"Credit Memo");
+        // VendorLedgEntry.SetFilter("Document Type", '%1|%2',
+        //     VendorLedgEntry."Document Type"::Invoice,
+        //     VendorLedgEntry."Document Type"::"Credit Memo");
 
         // Count how many we found
         FoundCount := VendorLedgEntry.Count();
@@ -67,9 +67,9 @@ codeunit 50142 "Auto Apply After Consolidation"
             VendorLedgEntry.Reset();
             VendorLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
             VendorLedgEntry.SetRange("Document No.", AppliesToDocNo);
-            VendorLedgEntry.SetFilter("Document Type", '%1|%2',
-                VendorLedgEntry."Document Type"::Invoice,
-                VendorLedgEntry."Document Type"::"Credit Memo");
+            // VendorLedgEntry.SetFilter("Document Type", '%1|%2',
+            //     VendorLedgEntry."Document Type"::Invoice,
+            //     VendorLedgEntry."Document Type"::"Credit Memo");
 
             if VendorLedgEntry.FindFirst() then
                 Message('Document %1 found but is CLOSED (Open=%2).\nCannot apply closed documents.',
@@ -201,9 +201,9 @@ codeunit 50142 "Auto Apply After Consolidation"
         VendorLedgEntry.SetRange("Applies-to ID", ApplyID);
         VendorLedgEntry.SetRange(Open, true);
         // CRITICAL FIX: Include both Invoice AND Credit Memo
-        VendorLedgEntry.SetFilter("Document Type", '%1|%2',
-            VendorLedgEntry."Document Type"::Invoice,
-            VendorLedgEntry."Document Type"::"Credit Memo");
+        // VendorLedgEntry.SetFilter("Document Type", '%1|%2',
+        //     VendorLedgEntry."Document Type"::Invoice,
+        //     VendorLedgEntry."Document Type"::"Credit Memo");
 
         if VendorLedgEntry.FindSet(true) then begin
             repeat
@@ -260,9 +260,9 @@ codeunit 50142 "Auto Apply After Consolidation"
         VendorLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
         VendorLedgEntry.SetRange(Open, true);
         // CRITICAL FIX: Include both Invoice AND Credit Memo
-        VendorLedgEntry.SetFilter("Document Type", '%1|%2',
-            VendorLedgEntry."Document Type"::Invoice,
-            VendorLedgEntry."Document Type"::"Credit Memo");
+        // VendorLedgEntry.SetFilter("Document Type", '%1|%2',
+        //     VendorLedgEntry."Document Type"::Invoice,
+        //     VendorLedgEntry."Document Type"::"Credit Memo");
 
         AppliedCount := VendorLedgEntry.Count();
 
@@ -336,9 +336,9 @@ codeunit 50142 "Auto Apply After Consolidation"
             VendorLedgEntry.SetRange("Document No.", InvoiceDocNo);
             VendorLedgEntry.SetRange(Open, true);
             // CRITICAL FIX: Include both Invoice AND Credit Memo
-            VendorLedgEntry.SetFilter("Document Type", '%1|%2',
-                VendorLedgEntry."Document Type"::Invoice,
-                VendorLedgEntry."Document Type"::"Credit Memo");
+            // VendorLedgEntry.SetFilter("Document Type", '%1|%2',
+            //     VendorLedgEntry."Document Type"::Invoice,
+            //     VendorLedgEntry."Document Type"::"Credit Memo");
 
             if VendorLedgEntry.FindSet(true) then begin
                 repeat

@@ -389,6 +389,7 @@ tableextension 50104 "Sales Header Ext" extends "Sales Header"
         field(50179; "Blanket Sales Order No."; Code[20])
         {
             Caption = 'Work Order No.';// DCS :: HJ20251028
+            NotBlank = true;
             // FieldClass = FlowField;
             // CalcFormula = lookup(Job."No." Where("Sales Order" = field("No.")));//DCS ::SP20250311
             //Editable = false;

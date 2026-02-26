@@ -22,6 +22,24 @@ pageextension 50103 "Customer Card Ext" extends "Customer Card"
         {
             Visible = false;
         }
+        modify("Currency Code")
+        {
+            trigger OnLookup(var Text: Text): Boolean
+            var
+                CurrencyRec: Record Currency;
+                CurrencyPage: Page "Currencies";
+            begin
+                CurrencyRec.SetRange(Code);
+                CurrencyRec.SetFilter(Code, '<>%1', 'AUD');
+                CurrencyPage.SetTableView(CurrencyRec);
+                CurrencyPage.LookupMode(true);
+                if CurrencyPage.RunModal() = Action::LookupOK then begin
+                    CurrencyPage.GetRecord(CurrencyRec);
+                    Rec."Currency Code" := CurrencyRec.Code;
+                end;
+                exit(true);
+            end;
+        }
         addafter(General)
         {
             group("D365 CUSTOM FIELDS")

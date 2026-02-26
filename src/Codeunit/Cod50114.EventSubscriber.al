@@ -730,6 +730,8 @@ codeunit 50114 "Event Subscriber"
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
             if SalesHeader."Shortcut Dimension 1 Code" = '' then
                 Error('Shortcut Dimension 1 Code must be filled before posting Sales Invoice %1.', SalesHeader."No.");
+            if SalesHeader."Blanket Sales Order No." = '' then
+                Error('Work Order No. must have a value before posting Sales Invoice %1.', SalesHeader."No.");
         end;
     end;
 

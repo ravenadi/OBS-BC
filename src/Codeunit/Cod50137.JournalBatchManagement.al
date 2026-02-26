@@ -99,8 +99,9 @@ codeunit 60137 "Journal Batch Management"
                         // Same combination found: consolidate by summing amounts
                         TempGenJnlLine.Amount += GenJnlLine.Amount;
                         TempGenJnlLine."Amount (LCY)" += GenJnlLine."Amount (LCY)";
-                        //Gkblabs_Tv_15/12/25
-                        TempGenJnlLine."Debit Amount" += GenJnlLine."Debit Amount";
+                        // keep debit/credit values in line with the Amount total
+                        TempGenJnlLine."Debit Amount" := TempGenJnlLine.Amount;
+                        TempGenJnlLine."Credit Amount" := TempGenJnlLine.Amount * -1; // mirror if needed
 
                         TempGenJnlLine.Modify();
                         ConsolidatedCount += 1;
@@ -115,6 +116,9 @@ codeunit 60137 "Journal Batch Management"
                         // Use false parameter to skip FlowField calculation
                         TempGenJnlLine.TransferFields(GenJnlLine, false);
                         TempGenJnlLine."Line No." := NewLineNo;
+                        // make sure debit amount mirrors the amount value
+                        TempGenJnlLine."Debit Amount" := GenJnlLine.Amount;
+                        TempGenJnlLine."Credit Amount" := GenJnlLine.Amount * -1;
                         TempGenJnlLine.Insert();
                         NewLineNo += 10000;
 
@@ -152,13 +156,6 @@ codeunit 60137 "Journal Batch Management"
                 // Set Applies-to ID to Document No. - this will be used for application
                 NewGenJnlLine."Applies-to Doc. No." := '';
                 NewGenJnlLine."Applies-to ID" := NewGenJnlLine."Document No.";
-                //Gkblabs_Tv_16/12/25
-                // Check if this line was consolidated (ConsolidatedCount > 0 means at least one consolidation happened)
-                // If consolidated: clear Business Unit Code
-                if ConsolidatedCount > 0 then begin
-                    NewGenJnlLine."Shortcut Dimension 1 Code" := '';
-                end;
-                // If NOT consolidated (single line move): keep original
 
                 NewGenJnlLine.Insert(true);
 
@@ -212,19 +209,56 @@ codeunit 60137 "Journal Batch Management"
         if (VendorNo = '') or (InvoiceDocNo = '') or (PaymentDocNo = '') then
             exit;
 
-        // Find the specific invoice in Vendor Ledger Entry
+        // Only set Applies-to ID for open entries that do not already have Applies-to ID (ignore Document Type)
         VendorLedgEntry.Reset();
         VendorLedgEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgEntry.SetRange("Document No.", InvoiceDocNo);
         VendorLedgEntry.SetRange(Open, true);
-        VendorLedgEntry.SetRange("Document Type", VendorLedgEntry."Document Type"::Invoice);
+        // VendorLedgEntry.SetRange("Document Type", VendorLedgEntry."Document Type"::Invoice);
+        // NO Document Type filter - apply to ALL document types
 
-        // Set Applies-to ID on this invoice
+        // Set Applies-to ID on this document
         if VendorLedgEntry.FindFirst() then begin
             VendorLedgEntry.CalcFields("Remaining Amount");
+            // VendorLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+
+            // Set Applies-to ID even if remaining is zero
             VendorLedgEntry."Applies-to ID" := PaymentDocNo;
-            VendorLedgEntry."Amount to Apply" := VendorLedgEntry."Remaining Amount";
+            // Use Validate to trigger BC standard logic
+            VendorLedgEntry.Validate("Amount to Apply", VendorLedgEntry."Remaining Amount");
             VendorLedgEntry.Modify(true);
+            //Gkblabs_Tv_06/02/26+++++++++++
+
+            // Success message
+            Message('✓ Applied: %1 %2 → Payment %3\nRemaining: %4\nPositive: %5',
+                VendorLedgEntry."Document Type",
+                InvoiceDocNo,
+                PaymentDocNo,
+                VendorLedgEntry."Remaining Amount",
+                VendorLedgEntry.Positive);
+        end else begin
+            // Document not found - check why
+            VendorLedgEntry.Reset();
+            VendorLedgEntry.SetRange("Vendor No.", VendorNo);
+            VendorLedgEntry.SetRange("Document No.", InvoiceDocNo);
+
+            if VendorLedgEntry.FindFirst() then begin
+                VendorLedgEntry.CalcFields("Remaining Amount");
+                Message('✗ Document FOUND but NOT MATCHED: %1\n' +
+                    'Vendor: %2\n' +
+                    'Document Type: %3 (Need Invoice or Credit Memo)\n' +
+                    'Open: %4 (Need Yes)\n' +
+                    'Positive: %5\n' +
+                    'Remaining: %6',
+                    InvoiceDocNo, VendorNo,
+                    Format(VendorLedgEntry."Document Type"),
+                    VendorLedgEntry.Open,
+                    VendorLedgEntry.Positive,
+                    VendorLedgEntry."Remaining Amount");
+            end else begin
+                Message('✗ Document NOT FOUND: %1\nVendor: %2', InvoiceDocNo, VendorNo);
+            end;
+            //Gkblabs_Tv_06/02/26----------------
         end;
     end;
 

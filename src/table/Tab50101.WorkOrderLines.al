@@ -197,16 +197,27 @@ table 50101 "Work Order Lines"
         // DCS::HP 081025 --
 
         // DCS::HP01122025++
+        //  Minimal fix: Check S1.01 first, if not found use S1
         field(30; "Project Task Number"; Code[200])
         {
             Caption = 'Project Task Number';
             DataClassification = ToBeClassified;
             trigger OnValidate()
+            //GkbLabs_Tv_02/02/2026
+            var
+                JobTask: Record "Job Task";
             begin
-                if rec."Project Task Number" in ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'] then
-                    Rec."Project Task Number" := Rec."Project Task Number" + '.01'
-                else
-                    Rec."Project Task Number" := '';
+                // Only process S1-S8 values
+                if Rec."Project Task Number" in ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'] then begin
+                    // Check if S1.01 exists
+                    JobTask.Reset();
+                    JobTask.SetRange("Job No.", Rec."Job No.");
+                    JobTask.SetRange("Job Task No.", Rec."Project Task Number" + '.01');
+                    if JobTask.FindFirst() then
+                        Rec."Project Task Number" := Rec."Project Task Number" + '.01'
+                    // else keep S1 as-is (don't change it)
+                end;
+                //GkbLabs_Tv_02/02/2026
             end;
         }
         // DCS::HP01122025--

@@ -40,6 +40,10 @@ page 50106 "API Item Journals"
                 {
                     Caption = 'Location Code';
                 }
+                field(bincode; Rec."Bin Code")
+                {
+                    Caption = 'Bin Code';
+                }
                 field(quantity; Rec.Quantity)
                 {
                     Caption = 'Quantity';

@@ -41,6 +41,27 @@ pageextension 50105 "Vendor Card Ext" extends "Vendor Card"
                     rec."Primary Contact ID" := contactRec."CRM ID";
             end;
         }
+        modify("Currency Code")
+        {
+            trigger OnLookup(var Text: Text): Boolean
+            var
+                CurrencyRec: Record Currency;
+                CurrencyPage: Page "Currencies";
+            begin
+                CurrencyRec.SetRange(Code);
+                CurrencyRec.SetFilter(Code, '<>%1', 'AUD');
+
+                CurrencyPage.SetTableView(CurrencyRec);
+                CurrencyPage.LookupMode(true);
+
+                if CurrencyPage.RunModal() = Action::LookupOK then begin
+                    CurrencyPage.GetRecord(CurrencyRec);
+                    Rec."Currency Code" := CurrencyRec.Code;
+                end;
+
+                exit(true);
+            end;
+        }
         addafter(General)
         {
             group("D365 CUSTOM FIELDS")

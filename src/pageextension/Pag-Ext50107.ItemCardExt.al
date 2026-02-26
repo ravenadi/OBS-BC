@@ -415,19 +415,19 @@ pageextension 50107 "Item Card Ext" extends "Item Card"
     begin
         if Rec."No." = '' then
             exit;
-        // if not Rec.QRCode.HasValue then begin
-        // URL := 'http://api.qrserver.com/v1/create-qr-code/?data=' + Rec."No." + ' ' + Rec.Description + '&size=200x200';
+        if not Rec.QRCode.HasValue then begin
+            //URL := 'http://api.qrserver.com/v1/create-qr-code/?data=' + Rec."No." + ' ' + Rec.Description + '&size=200x200';
 
-        URL := 'http://api.qrserver.com/v1/create-qr-code/?data=' + Rec."No." + '&size=200x200';
-        if Client.Get(URL, Response) then begin
-            if Response.IsSuccessStatusCode() then begin
-                Response.Content.ReadAs(InS);
-                Rec.QRCode.CreateOutStream(OutS);
-                CopyStream(OutS, InS);
-                Rec.Modify();
+            URL := 'http://api.qrserver.com/v1/create-qr-code/?data=' + Rec."No." + '&size=200x200';
+            if Client.Get(URL, Response) then begin
+                if Response.IsSuccessStatusCode() then begin
+                    Response.Content.ReadAs(InS);
+                    Rec.QRCode.CreateOutStream(OutS);
+                    CopyStream(OutS, InS);
+                    Rec.Modify();
+                end;
             end;
         end;
-        //end;
     end;
 
     //GkbLabs_Tv_24/01/26++

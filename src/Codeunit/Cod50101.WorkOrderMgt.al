@@ -71,13 +71,10 @@ codeunit 50101 "Work Order Mgt."
         PlanningLine.Init();//Init
         PlanningLine."Line No." := WOLn."Line No.";
         PlanningLine."Job No." := WOLn."Job No.";
-        //GkbLabs_Tv_23/01/2026
-        // Prefer incoming Project Task Number (e.g. S5.01) when provided; fallback to Work Order No.
-        if WOLn."Project Task Number" <> '' then
-            PlanningLine."Job Task No." := WOLn."Project Task Number"
-        else
-            PlanningLine."Job Task No." := WOLn."Work Order No.";
-        //GkbLabs_Tv_23/01/2026----
+        //GkbLabs_Tv_10/02/2026 ++ changed Job Task No. to Project Task No. as per the GKB requirement
+        PlanningLine."Job Task No." := ResolveJobTaskNo(WOLn);
+        // Store Project Task Number in Project Sub-Task No. field for reference
+        PlanningLine."Project Sub-Task No." := WOLn."Project Task Number";
         // Production Comment
         // if FindRec then
         //     PlanningLine."Job Task No." := WOLn."Project Task Number"
@@ -519,7 +516,7 @@ codeunit 50101 "Work Order Mgt."
     begin
         PlanningLine.Reset();
         PlanningLine.SetRange("Job No.", WOLn."Job No.");
-        PlanningLine.SetRange("Job Task No.", WOLn."Work Order No.");
+        PlanningLine.SetRange("Job Task No.", ResolveJobTaskNo(WOLn));
         PlanningLine.SetRange("Line No.", WOLn."Line No.");
 
         if not PlanningLine.FindFirst() then
@@ -573,15 +570,22 @@ codeunit 50101 "Work Order Mgt."
         JobPlanningLineToPost.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         // JobJournalSetupPag.SetSelectionFilter(JobPlanningLine);
         JobPlanningLineToPost.SetFilter(Type, '<>%1', JobPlanningLineToPost.Type::Text);
+        // 🔹 ONLY auto-post Both Budget and Billable
+        JobPlanningLineToPost.SetRange(
+            "Line Type",
+            JobPlanningLineToPost."Line Type"::"Both Budget and Billable");
         if JobPlanningLineToPost.FindSet() then
             repeat
-                if JobPlanningLineToPost."Qty. to Transfer to Journal" <> 0 then
+                if (JobPlanningLineToPost."Line Type" = JobPlanningLineToPost."Line Type"::"Both Budget and Billable") and
+                   (JobPlanningLineToPost."Qty. to Transfer to Journal" <> 0) then
+                begin
                     JobTransferLine.FromPlanningLineToJnlLine(
                         JobPlanningLineToPost,
                         WorkDate(),
                         JobJournalSetup."Journal Template",
                         JobJournalSetup."Journal Batch",
                         JobJnlLine);
+                end;
             until JobPlanningLineToPost.Next() = 0;
         Commit();
         PostJobJournal(
@@ -624,4 +628,34 @@ codeunit 50101 "Work Order Mgt."
             IsHandled := true;
     end;
     // DCS::HP-20250723 --
+    //GkbLabs_Tv_10/02/2026 ++ new procedure to resolve job task no. from work order line
+    local procedure ResolveJobTaskNo(WOLn: Record "Work Order Lines"): Code[20]
+    var
+        JobTask: Record "Job Task";
+        IncomingTask: Code[20];
+        ChildTask: Code[20];
+    begin
+        IncomingTask := WOLn."Project Task Number"; // e.g. S1
+
+        if IncomingTask = '' then
+            exit(WOLn."Work Order No.");
+
+        // 1️⃣ Try EXACT match first (S1)
+        JobTask.Reset();
+        JobTask.SetRange("Job No.", WOLn."Job No.");
+        JobTask.SetRange("Job Task No.", IncomingTask);
+        if JobTask.FindFirst() then
+            exit(IncomingTask);
+
+        // 2️⃣ Try appending .01 (S1.01)
+        ChildTask := IncomingTask + '.01';
+        JobTask.Reset();
+        JobTask.SetRange("Job No.", WOLn."Job No.");
+        JobTask.SetRange("Job Task No.", ChildTask);
+        if JobTask.FindFirst() then
+            exit(ChildTask);
+
+        // 3️⃣ Absolute fallback
+        exit(WOLn."Work Order No.");
+    end;
 }

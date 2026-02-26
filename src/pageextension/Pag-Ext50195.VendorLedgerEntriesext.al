@@ -10,6 +10,11 @@ pageextension 50195 "Vendor Ledger Entries ext" extends "Vendor Ledger Entries"
                 applicationarea = all;
                 caption = 'Name';
             }
+            field("Vendor E-Mail"; rec."Vendor E-Mail")
+            {
+                ApplicationArea = All;
+                Caption = 'E-Mail';
+            }
         }
     }
 }

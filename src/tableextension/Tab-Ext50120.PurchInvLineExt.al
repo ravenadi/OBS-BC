@@ -25,7 +25,8 @@ tableextension 50120 "Purch. Inv. Line Ext" extends "Purch. Inv. Line"
         }
         // DCS::HP 18092025 --
         // GkbLabs_Tv_29/01/25 ++
-        field(50211; "Transaction No."; Integer)
+        // Changed field ID from 50211 to 50216 to avoid conflict with Purchase Line field 50211 "Name Ordered By"
+        field(50216; "Transaction No."; Integer)
         {
             Caption = 'Transaction No.';
             DataClassification = ToBeClassified;
@@ -50,7 +51,7 @@ tableextension 50120 "Purch. Inv. Line Ext" extends "Purch. Inv. Line"
             Caption = 'GST Amount';
             DataClassification = ToBeClassified;
         }
-          // GkbLabs_Tv_29/01/25 --
+        // GkbLabs_Tv_29/01/25 --
     }
 
 
