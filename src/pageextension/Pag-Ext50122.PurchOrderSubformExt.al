@@ -192,6 +192,26 @@ pageextension 50122 "Purch Order Subform Ext" extends "Purchase Order Subform"
             Visible = false;
         }
 
+        // show header-level total on each line via flowfield
+        addafter("Line Discount %")
+        {
+            field("Total Direct Unit Cost"; Rec."Total Direct Unit Cost")
+            {
+                ApplicationArea = All;
+                Caption = 'Total Direct Unit Cost';
+                Editable = false;
+            }
+        }
+
+        // ensure the existing Inv. Discount Amount field is visible and read-only,
+        // and position it after the Line Discount % column
+        moveafter("Line Discount %"; "Inv. Discount Amount")
+        modify("Inv. Discount Amount")
+        {
+            ApplicationArea = All;
+            Editable = false;
+        }
+
         addlast(Control1)
         {
             field(VendorCatalogueNo; Rec.VendorCatalogueNo)

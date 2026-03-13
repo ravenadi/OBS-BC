@@ -158,6 +158,7 @@ pageextension 50131 "Job Card Ext" extends "Job Card"
                 var
                     ProjectToCRM: Codeunit "Update Project to Crm";
                 begin
+                    CurrPage.SaveRecord();
                     ProjectToCRM.UpdateCRMAccount(Rec);
                     Message('Successfully updated in CRM.');
                 end;

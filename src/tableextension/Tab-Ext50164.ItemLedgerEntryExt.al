@@ -45,6 +45,13 @@ tableextension 50164 "Item Ledger Entry Ext" extends "Item Ledger Entry"
         IsSuccessful: Boolean;
         UnitOfMeasure: Record "Unit of Measure";
         Location: Record Location;
+        // lookup bin CRM ID
+        Bin: Record Bin;
+        // local helpers
+        Quantity: Decimal;
+        UOMCode: Code[10];
+        LocationCode: Code[10];
+        binCrmId: Text[100];
         MaxRetries: Integer;
         RetryCount: Integer;
         TimeoutMs: Integer;
@@ -91,10 +98,20 @@ tableextension 50164 "Item Ledger Entry Ext" extends "Item Ledger Entry"
         LocationCode := Rec."Location Code";
         if LocationCode <> '' then begin
             Location.Get(LocationCode);
+            // warehousecrmid comes from the Location record
             InventoryJson.Add('warehousecrmid', Location."CRM ID");
-            // include bin code when present - user requested field 5403
+
+            // always include the raw bin code for reference
             if Rec."Bin Code" <> '' then
                 InventoryJson.Add('bincode', Rec."Bin Code");
+
+            // add bincrmid even if blank - source is the Bin table (table 7354)
+            binCrmId := '';
+            if Rec."Bin Code" <> '' then
+                if Bin.Get(LocationCode, Rec."Bin Code") then
+                    binCrmId := Bin."CRM ID";
+            InventoryJson.Add('bincrmid', binCrmId);
+
             // GkbLabs_Tv_31/01/2026++ Only add adjustmentcrmid for non-transfer entries
             if Rec."Entry Type" <> Rec."Entry Type"::Transfer then
                 InventoryJson.Add('adjustmentcrmid', Location."Adjustment Crm Id");
@@ -254,10 +271,6 @@ tableextension 50164 "Item Ledger Entry Ext" extends "Item Ledger Entry"
         exit(false);
     end;
 
-    var
-        Quantity: Decimal;
-        UOMCode: Code[10];
-        LocationCode: Code[10];
 }
 
 

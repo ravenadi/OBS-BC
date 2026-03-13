@@ -20,6 +20,8 @@ codeunit 50158 "PO CRM Sync Mgmt"
         TokenString: Text;
 
         TotalAmount: Decimal;
+        // sum of direct unit costs on PO lines
+        TotalDirectCost: Decimal;
         EarliestDueDate: Date;
         HasDueDate: Boolean;
 
@@ -56,6 +58,7 @@ codeunit 50158 "PO CRM Sync Mgmt"
 
         // Aggregate line data
         TotalAmount := 0;
+        TotalDirectCost := 0; // start with zero, will accumulate from each line
         HasDueDate := false;
         EarliestDueDate := 0D;
         JobNo := '';
@@ -67,6 +70,8 @@ codeunit 50158 "PO CRM Sync Mgmt"
             repeat
                 // Use Line Amount (safer for POs)
                 TotalAmount += PurchLine."Line Amount";
+                // accumulate direct unit cost for JSON payload
+                TotalDirectCost += PurchLine."Direct Unit Cost";
 
                 if PurchLine."Expected Receipt Date" <> 0D then begin
                     if (not HasDueDate) or (PurchLine."Expected Receipt Date" < EarliestDueDate) then begin
@@ -134,6 +139,8 @@ codeunit 50158 "PO CRM Sync Mgmt"
             Payload.Add('duedate', Format(EarliestDueDate, 0, '<Standard Format,9>'));
 
         Payload.Add('amount', Round(TotalAmount, 0.01));
+        // include the total of direct unit costs - corresponds to header.flowfield or summed line values
+        Payload.Add('totaldirectunitcost', Round(TotalDirectCost, 0.01));
         Payload.Add('currencycode', CurrCodeToSend);
         Payload.Add('currencycrmid', CurrencyRec."CRM ID");
 

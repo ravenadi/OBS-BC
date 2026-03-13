@@ -22,11 +22,12 @@ codeunit 50130 "Update Project to Crm"
         URLsetup: Record "URL Setup";
     begin
         URLsetup.Get();
+        Job.Find(); // Refresh from DB to get latest Substatus value
         MaxRetries := Job."System Status";
         RetryCount := 0;
         TimeoutMs := 120000;
         Client.Timeout(TimeoutMs);
-        
+
         Content.GetHeaders(ContentHeaders);
         ContentHeaders.Clear();
         ContentHeaders.Add('Content-Type', 'application/json');
@@ -37,13 +38,14 @@ codeunit 50130 "Update Project to Crm"
             jobJson.Add('crmid', workorder."CRM ID");
         jobJson.Add('systemStatus', Job."System Status");
         // DCS::HP 18082025 ++
-        workordersubstatusrec.Reset();
-        workordersubstatusrec.SetRange("System Substatus", Job."System Status");
-        if workordersubstatusrec.FindFirst() then
-            jobJson.Add('substatus', workordersubstatusrec."CRM ID");
+        if Job."Substatus" <> '' then begin
+            workordersubstatusrec.Reset();
+            workordersubstatusrec.SetFilter(Name, '@' + Job."Substatus");
+            if workordersubstatusrec.FindFirst() then
+                jobJson.Add('substatus', workordersubstatusrec."CRM ID");
+        end;
         // DCS::HP 18082025 --
         jobJson.WriteTo(jsonText);
-        // Message('Sending JSON: %1', jsonText);
         Content.WriteFrom(jsonText);
         repeat
             RetryCount += 1;

@@ -148,7 +148,7 @@ codeunit 50113 "Requisition Line Handler"
     local procedure OnBeforeInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; TransferItem: Boolean; OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLineOrigin: Record "Item Journal Line")
     begin
         ItemLedgerEntry.Comment := ItemJournalLine.Comment;
-        // propagate bin code from journal line to ledger entry (added field 50201 on extension)
+        // copy bin code so the ledger entry carries it for CRM sync
         ItemLedgerEntry."Bin Code" := ItemJournalLine."Bin Code";
     end;
 

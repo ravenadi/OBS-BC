@@ -408,7 +408,7 @@ tableextension 50104 "Sales Header Ext" extends "Sales Header"
         {
             Caption = 'Agreement % 1';
             DataClassification = ToBeClassified;
-            DecimalPlaces = 0 : 2;
+            DecimalPlaces = 0 : 4;
             MinValue = 0;
             MaxValue = 100;
             trigger OnValidate()
@@ -426,7 +426,7 @@ tableextension 50104 "Sales Header Ext" extends "Sales Header"
         {
             Caption = 'Agreement % 2';
             DataClassification = ToBeClassified;
-            DecimalPlaces = 0 : 2;
+            DecimalPlaces = 0 : 4;
             MinValue = 0;
             MaxValue = 100;
             trigger OnValidate()
@@ -445,7 +445,7 @@ tableextension 50104 "Sales Header Ext" extends "Sales Header"
         {
             Caption = 'Agreement % 3';
             DataClassification = ToBeClassified;
-            DecimalPlaces = 0 : 2;
+            DecimalPlaces = 0 : 4;
             MinValue = 0;
             MaxValue = 100;
             trigger OnValidate()

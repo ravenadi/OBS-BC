@@ -54,6 +54,10 @@ page 50157 "URL Setup"
                 {
                     ToolTip = 'Specifies the value of the Inventory Adjustment URL field.', Comment = '%';
                 }
+                field("Bin URL"; Rec."Bin URL")
+                {
+                    ToolTip = 'Specifies the value of the Bin URL field.', Comment = '%';
+                }
                 field("Inventory URL"; Rec."Inventory URL")
                 {
                     ToolTip = 'Specifies the value of the Inventory URL field.', Comment = '%';
@@ -61,7 +65,7 @@ page 50157 "URL Setup"
                 // DCS::02122025 ++
                 field("Sales Price List URL"; Rec."Sales Price List URL")
                 {
-                    ToolTip = 'Specifies the value of the Bin URL field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Sales Price List URL field.', Comment = '%';
                 }
                 // DCS::02122025 --
                 field("Purchase Order URL"; Rec."Purchase Order URL")

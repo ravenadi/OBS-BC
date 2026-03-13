@@ -44,6 +44,10 @@ table 50110 "URL Setup"
         {
             DataClassification = ToBeClassified;
         }
+        field(14; "Bin URL"; Text[500])
+        {
+            DataClassification = ToBeClassified;
+        }
         field(12; "Inventory Adjustment URL"; Text[500])
         {
             DataClassification = ToBeClassified;
