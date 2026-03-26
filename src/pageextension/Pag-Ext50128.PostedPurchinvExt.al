@@ -36,6 +36,12 @@ pageextension 50128 "Posted Purch Inv. Ext" extends "Posted Purchase Invoice"
                 ApplicationArea = all;
                 Caption = 'Delivery Docket No.';
             }
+            field("Remaining Amount"; Rec."Remaining Amount")
+            {
+                ApplicationArea = All;
+                Caption = 'Remaining Amount';
+                ToolTip = 'Specifies the remaining amount outstanding on the posted purchase invoice.';
+            }
         }
     }
     // DCS::HP08122025 ++

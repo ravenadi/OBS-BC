@@ -33,6 +33,7 @@ permissionset 50100 GeneratedPermission
         codeunit "Create Customer From Vendor" = X,
         codeunit "Create Order helper" = X,
         codeunit "Create PO From Req" = X,
+        codeunit "PO CRM Sync Mgmt" = X,
         codeunit "Customer Crm Management" = X,
         codeunit "Event Subscriber" = X,
         codeunit "Inventory Reorder" = X,

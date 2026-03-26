@@ -557,6 +557,7 @@ codeunit 50101 "Work Order Mgt."
         JobJournalSetup: Record "Job Journal Setup";
         JobJournalSetupPag: Page "Job Journal Setup";
         JobNo: code[10];
+        SkippedLines: Text;
     begin
         if not JobJournalSetup.Get() then
             JobJournalSetup.Init();
@@ -568,17 +569,36 @@ codeunit 50101 "Work Order Mgt."
         JobNo := JobPlanningLineToPost."Job No.";
         JobPlanningLineToPost.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLineToPost.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        // JobJournalSetupPag.SetSelectionFilter(JobPlanningLine);
-        JobPlanningLineToPost.SetFilter(Type, '<>%1', JobPlanningLineToPost.Type::Text);
         // 🔹 ONLY auto-post Both Budget and Billable
         JobPlanningLineToPost.SetRange(
             "Line Type",
             JobPlanningLineToPost."Line Type"::"Both Budget and Billable");
+        JobPlanningLineToPost.SetFilter(Type, '<>%1', JobPlanningLineToPost.Type::Text);
+
+        //GkbLabs_Tv_17/03/2026 ++
+        // Pre-check: collect Item lines with no inventory — warn user but DO NOT block other lines
+        SkippedLines := '';
+        if JobPlanningLineToPost.FindSet() then
+            repeat
+                if (JobPlanningLineToPost.Type = JobPlanningLineToPost.Type::Item) and
+                   (JobPlanningLineToPost.Quantity > 0) and
+                   (JobPlanningLineToPost."Qty. to Transfer to Journal" = 0) then
+                    SkippedLines += '\- Line ' + Format(JobPlanningLineToPost."Line No.") +
+                                    ': Item ' + JobPlanningLineToPost."No." +
+                                    ' at Location ' + JobPlanningLineToPost."Location Code" +
+                                    ' (Qty: ' + Format(JobPlanningLineToPost.Quantity) + ')';
+            until JobPlanningLineToPost.Next() = 0;
+
+        if SkippedLines <> '' then
+            Message('Warning: The following Item lines have no inventory and will be skipped.\' +
+                    'Please check stock and post manually from Project Journal:\' +
+                    SkippedLines);
+        //GkbLabs_Tv_17/03/2026 --
+
         if JobPlanningLineToPost.FindSet() then
             repeat
                 if (JobPlanningLineToPost."Line Type" = JobPlanningLineToPost."Line Type"::"Both Budget and Billable") and
-                   (JobPlanningLineToPost."Qty. to Transfer to Journal" <> 0) then
-                begin
+                   (JobPlanningLineToPost."Qty. to Transfer to Journal" <> 0) then begin
                     JobTransferLine.FromPlanningLineToJnlLine(
                         JobPlanningLineToPost,
                         WorkDate(),

@@ -80,6 +80,10 @@ codeunit 50119 "Create Order helper"
                         // Guard to avoid duplicate sends if an insert subscriber already sent
                         if PurchaseOrderHdr1."CRM ID" = '' then
                             PurchaseCrmSync.SendPurchaseOrderToCRM(Part);
+                        // DCS::HP16032026 ++
+                        // Send PO lines to CRM after header is synced
+                        PurchaseCrmSync.SendPurchaseOrderLinesToCRM(Part);
+                        // DCS::HP16032026 --
                     end;
                     //GKBLabs_Tv_29/06/24 --
                 end;

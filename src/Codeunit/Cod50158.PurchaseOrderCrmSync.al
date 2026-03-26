@@ -148,7 +148,7 @@ codeunit 50158 "PO CRM Sync Mgmt"
         Payload.Add('status', Format(PurchHdr.Status).Replace('_x0020_', ' '));
 
         Payload.Add('locationcode', PurchHdr."Location Code");
-        Payload.Add('locationcrmid', LocationRec."CRM ID");
+        Payload.Add('locationcrmid', LocationRec."Crm Id");
 
         Payload.Add('jobno', JobNo);
         Payload.Add('jobcrmid', JobCrmId);
@@ -242,4 +242,199 @@ codeunit 50158 "PO CRM Sync Mgmt"
             end;
         end;
     end;
+
+    // DCS::HP16032026 ++
+    procedure SendPurchaseOrderLinesToCRM(PurchaseOrderNo: Code[20])
+    var
+        PurchLine: Record "Purchase Line";
+        PurchHdr: Record "Purchase Header";
+        URLSetupRec: Record "URL Setup";
+        Client: HttpClient;
+        Content: HttpContent;
+        ContentHeaders: HttpHeaders;
+        Response: HttpResponseMessage;
+        ResponseText: Text;
+        Payload: JsonObject;
+        ResponseJson: JsonObject;
+        BodyObj: JsonObject;
+        TokenValue: JsonToken;
+        TokenString: Text;
+        JsonText: Text;
+        IsSuccessful: Boolean;
+        VendorRec: Record Vendor;
+        JobRec: Record Job;
+        JobCrmId: Text;
+        LocationRec: Record Location;
+        ItemRec: Record Item;
+        UomRec: Record "Unit of Measure";
+        CurrencyLinRec: Record Currency;
+        GLSetupLin: Record "General Ledger Setup";
+        LCYCodeLin: Code[10];
+        CurrCodeLin: Code[10];
+    begin
+        if not URLSetupRec.Get() then
+            exit;
+        if URLSetupRec."Purchase Order Line URL" = '' then
+            exit;
+
+        if not PurchHdr.Get(PurchHdr."Document Type"::Order, PurchaseOrderNo) then
+            exit;
+
+        PurchLine.Reset();
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", PurchaseOrderNo);
+        if not PurchLine.FindSet() then
+            exit;
+
+        repeat
+            // Resolve vendor
+            Clear(VendorRec);
+            if PurchLine."Buy-from Vendor No." <> '' then
+                if not VendorRec.Get(PurchLine."Buy-from Vendor No.") then
+                    Clear(VendorRec);
+
+            // Resolve location
+            Clear(LocationRec);
+            if PurchLine."Location Code" <> '' then
+                if not LocationRec.Get(PurchLine."Location Code") then
+                    Clear(LocationRec);
+
+            // Resolve job CRM ID
+            JobCrmId := '';
+            if (PurchLine."Job No." <> '') and JobRec.Get(PurchLine."Job No.") then
+                JobCrmId := JobRec."CRM ID";
+
+            // Resolve item
+            Clear(ItemRec);
+            if PurchLine."No." <> '' then
+                if not ItemRec.Get(PurchLine."No.") then
+                    Clear(ItemRec);
+
+            // Resolve unit of measure
+            Clear(UomRec);
+            if PurchLine."Unit of Measure Code" <> '' then
+                if not UomRec.Get(PurchLine."Unit of Measure Code") then
+                    Clear(UomRec);
+
+            // Resolve currency (use document currency, fallback to LCY)
+            Clear(CurrencyLinRec);
+            LCYCodeLin := '';
+            if GLSetupLin.Get() then
+                LCYCodeLin := GLSetupLin."LCY Code";
+            CurrCodeLin := PurchHdr."Currency Code";
+            if CurrCodeLin = '' then
+                CurrCodeLin := LCYCodeLin;
+            if CurrCodeLin <> '' then
+                if not CurrencyLinRec.Get(CurrCodeLin) then
+                    Clear(CurrencyLinRec);
+
+            // Build payload
+            Clear(Payload);
+            Payload.Add('operation', 'CREATE');
+            Payload.Add('bcpurchaseorderno', PurchLine."Document No.");
+            Payload.Add('purchaseorderlineno', PurchLine."Line No.");
+            Payload.Add('crmid', PurchLine."CRM ID");
+            Payload.Add('purchaseordercrmid', PurchHdr."CRM ID");
+
+            Payload.Add('type', Format(PurchLine.Type));
+            Payload.Add('itemno', PurchLine."No.");
+            Payload.Add('description', PurchLine.Description);
+            Payload.Add('itemcatalogno', PurchLine.VendorCatalogueNo);
+
+            Payload.Add('productcrmid', ItemRec."CRM ID");
+            Payload.Add('productstatus', Format(ItemRec.Blocked));
+
+            Payload.Add('quantity', PurchLine.Quantity);
+            Payload.Add('unitofmeasure', PurchLine."Unit of Measure Code");
+            Payload.Add('unitscrmid', UomRec."CRM ID");
+            Payload.Add('directunitcost', Round(PurchLine."Direct Unit Cost", 0.01));
+            Payload.Add('lineamount', Round(PurchLine."Line Amount", 0.01));
+            Payload.Add('currencycode', CurrCodeLin);
+            Payload.Add('currencycrmid', CurrencyLinRec."CRM ID");
+
+            Payload.Add('vendorno', PurchLine."Buy-from Vendor No.");
+            Payload.Add('vendorcrmid', VendorRec."CRM ID");
+            Payload.Add('vendorname', VendorRec.Name);
+
+            Payload.Add('locationcode', PurchLine."Location Code");
+            Payload.Add('locationcrmid', LocationRec."Crm Id");
+
+            Payload.Add('jobno', PurchLine."Job No.");
+            Payload.Add('jobcrmid', JobCrmId);
+            Payload.Add('jobtaskno', PurchLine."Job Task No.");
+
+            Payload.Add('shortcutdimension1code', PurchLine."Shortcut Dimension 1 Code");
+            Payload.Add('genbuspostinggroup', PurchLine."Gen. Bus. Posting Group");
+            Payload.Add('glaccountno', PurchLine."G/L Account No.");
+
+            Payload.Add('expectedreceiptdate', Format(PurchLine."Expected Receipt Date", 0, '<Standard Format,9>'));
+            Payload.Add('orderedby', PurchLine."Ordered By");
+            Payload.Add('nameorderedby', PurchLine."Name Ordered By");
+            Payload.Add('workorderno', PurchLine."Work Order No.");
+            Payload.Add('carregistrationno', PurchLine."Car Registration No.");
+
+            Payload.WriteTo(JsonText);
+
+            Content.WriteFrom(JsonText);
+            Content.GetHeaders(ContentHeaders);
+            ContentHeaders.Clear();
+            ContentHeaders.Add('Content-Type', 'text/plain; charset=utf-8');
+
+            Client.Timeout(60000);
+            IsSuccessful := Client.Post(URLSetupRec."Purchase Order Line URL", Content, Response);
+            Response.Content().ReadAs(ResponseText);
+
+            if not IsSuccessful then
+                Error('HTTP request failed for PO Line %1 / %2. Response: %3',
+                    PurchLine."Document No.", PurchLine."Line No.", ResponseText);
+
+            if not Response.IsSuccessStatusCode() then
+                Error('CRM error for PO Line %1 / %2. Status: %3 Response: %4',
+                    PurchLine."Document No.", PurchLine."Line No.",
+                    Response.HttpStatusCode(), ResponseText);
+
+            // Write back CRM ID to the line
+            if ResponseText <> '' then begin
+                Clear(ResponseJson);
+                TokenString := '';
+                if ResponseJson.ReadFrom(ResponseText) then begin
+                    if ResponseJson.Get('crmid', TokenValue) or
+                       ResponseJson.Get('crmId', TokenValue) or
+                       ResponseJson.Get('CRMID', TokenValue)
+                    then
+                        TokenString := TokenValue.AsValue().AsText();
+
+                    if (TokenString = '') and ResponseJson.Get('body', TokenValue) then begin
+                        if TokenValue.IsObject then begin
+                            BodyObj := TokenValue.AsObject();
+                            if BodyObj.Get('crmid', TokenValue) or
+                               BodyObj.Get('crmId', TokenValue) or
+                               BodyObj.Get('CRMID', TokenValue)
+                            then
+                                TokenString := TokenValue.AsValue().AsText();
+
+                            if (TokenString = '') and BodyObj.Get('body', TokenValue) and TokenValue.IsObject then begin
+                                BodyObj := TokenValue.AsObject();
+                                if BodyObj.Get('crmid', TokenValue) or
+                                   BodyObj.Get('crmId', TokenValue) or
+                                   BodyObj.Get('CRMID', TokenValue)
+                                then
+                                    TokenString := TokenValue.AsValue().AsText();
+                            end;
+                        end;
+                    end;
+                end else
+                    TokenString := DelChr(ResponseText, '=', ' ');
+
+                if TokenString <> '' then begin
+                    PurchLine.LockTable();
+                    PurchLine."CRM ID" := CopyStr(DelChr(TokenString, '=', '"'), 1, MaxStrLen(PurchLine."CRM ID"));
+                    PurchLine.Modify(false);
+                    Commit();
+                end;
+            end;
+
+        until PurchLine.Next() = 0;
+    end;
+    // DCS::HP16032026 --
 }

@@ -71,6 +71,12 @@ table 50110 "URL Setup"
         {
             DataClassification = ToBeClassified;
         }
+        // DCS::HP16032026 ++
+        field(15; "Purchase Order Line URL"; Text[500])
+        {
+            DataClassification = ToBeClassified;
+        }
+        // DCS::HP16032026 --
     }
 
     keys

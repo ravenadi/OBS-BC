@@ -72,6 +72,12 @@ page 50157 "URL Setup"
                 {
                     ToolTip = 'Specifies the value of the Purchase Order URL field.', Comment = '%';
                 }
+                // DCS::HP16032026 ++
+                field("Purchase Order Line URL"; Rec."Purchase Order Line URL")
+                {
+                    ToolTip = 'Specifies the value of the Purchase Order Line URL field.', Comment = '%';
+                }
+                // DCS::HP16032026 --
             }
         }
     }
