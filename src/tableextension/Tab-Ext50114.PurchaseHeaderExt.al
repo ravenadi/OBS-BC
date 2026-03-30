@@ -94,10 +94,52 @@ tableextension 50114 "Purchase Header Ext" extends "Purchase Header"
             DataClassification = ToBeClassified;
         }
         // DCS::HP11112025 --
-
-
-
+        // GkbLabs_Tv_26/03/2026 ++
+        field(50209; "Currency Symbol"; Text[10])
+        {
+            Caption = 'Currency Symbol';
+            DataClassification = ToBeClassified;
+            Editable = false;
+        }
+        // GkbLabs_Tv_26/03/2026 --
+        modify("Currency Code")
+        {
+            trigger OnAfterValidate()
+            begin
+                Rec."Currency Symbol" := GetCurrencySymbol(Rec."Currency Code");
+            end;
+        }
     }
+
+    procedure GetCurrencySymbol(CurrencyCode: Code[10]): Text[10]
+    begin
+        case CurrencyCode of
+            '', 'AUD':
+                exit('$');
+            'USD':
+                exit('$');
+            'EUR':
+                exit('€');
+            'GBP':
+                exit('£');
+            'INR':
+                exit('₹');
+            'JPY':
+                exit('¥');
+            'CNY':
+                exit('¥');
+            'NZD':
+                exit('$');
+            'CAD':
+                exit('$');
+            'SGD':
+                exit('$');
+            'HKD':
+                exit('$');
+            else
+                exit(CurrencyCode);
+        end;
+    end;
     trigger OnInsert()
     var
         user: Record "User Setup";
@@ -110,7 +152,17 @@ tableextension 50114 "Purchase Header Ext" extends "Purchase Header"
         if Rec."Delivery Docket No." = '' then
             Rec."Delivery Docket No." := NoSeriesMgt.GetNextNo('DLVDOC', Today(), true);
         // DCS::HP 14082025 --
+        // GkbLabs_Tv_26/03/2026 ++ populate symbol on new record
+        Rec."Currency Symbol" := GetCurrencySymbol(Rec."Currency Code");
+        // GkbLabs_Tv_26/03/2026 --
     end;
+
+    // GkbLabs_Tv_26/03/2026 ++ populate symbol whenever record is saved
+    trigger OnModify()
+    begin
+        Rec."Currency Symbol" := GetCurrencySymbol(Rec."Currency Code");
+    end;
+    // GkbLabs_Tv_26/03/2026 --
 
 
 }

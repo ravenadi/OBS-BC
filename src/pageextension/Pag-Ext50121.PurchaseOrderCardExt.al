@@ -82,6 +82,15 @@ pageextension 50121 "Purchase Order Card Ext" extends "Purchase Order"
                 ToolTip = 'Specifies the value of the Special Instruction field.', Comment = '%';
             }
             // DCS::HP11112025 --
+            // GkbLabs_Tv_26/03/2026 ++
+            field("Currency Symbol"; Rec."Currency Symbol")
+            {
+                ApplicationArea = All;
+                Caption = 'Currency Symbol';
+                Editable = false;
+                ToolTip = 'Shows the currency symbol derived from the Currency Code (e.g. $, €, £, ₹).';
+            }
+            // GkbLabs_Tv_26/03/2026 --
         }
         addafter("Buy-from Address 2")
         {
@@ -171,10 +180,15 @@ pageextension 50121 "Purchase Order Card Ext" extends "Purchase Order"
             CurrPage.Update(false);
         end;
 
+        // GkbLabs_Tv_26/03/2026 ++ always compute symbol for display,
+        // covers existing records where Currency Code was set before this field existed
+        Rec."Currency Symbol" := Rec.GetCurrencySymbol(Rec."Currency Code");
+        // GkbLabs_Tv_26/03/2026 --
+
         // PurchLine.SetRange("Document Type", Rec."Document Type");
         // PurchLine.SetRange("Document No.", Rec."No.");
         // if PurchLine.FindFirst() then begin
-        //     Rec."Ordered By" := PurchLine."Ordered By"; 
+        //     Rec."Ordered By" := PurchLine."Ordered By";
         // end;
     end;
 }

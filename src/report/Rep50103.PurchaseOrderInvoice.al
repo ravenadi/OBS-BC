@@ -89,8 +89,10 @@ report 50103 "Purchase Order Invoice"
             }
             column(Name_Ordered_By; "Name Ordered By") { }
             column(Created_By; "Created By") { }
-
             column(Job_No; "Job No") { }
+            // GkbLabs_Tv_26/03/2026 ++
+            column(Currency_Symbol; CurrencySymbolTxt) { }
+            // GkbLabs_Tv_26/03/2026 --
 
             column(CompanyBankBranchNo_Lbl; CompanyInfo.FieldCaption("Bank Branch No."))
             {
@@ -516,6 +518,8 @@ report 50103 "Purchase Order Invoice"
                 }
                 column(LineAmt_PurchLine; FormattedLineAmount)
                 {
+                    AutoFormatExpression = "Purchase Header"."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(AllowInvDisc_PurchLine; "Allow Invoice Disc.")
                 {
@@ -559,6 +563,8 @@ report 50103 "Purchase Order Invoice"
                 }
                 column(AmountIncludingVAT; "Amount Including VAT")
                 {
+                    AutoFormatExpression = "Purchase Header"."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(TotalPriceCaption_Lbl; TotalPriceCaptionLbl)
                 {
@@ -568,6 +574,8 @@ report 50103 "Purchase Order Invoice"
                 }
                 column(UnitPrice_PurchLine; "Unit Price (LCY)")
                 {
+                    AutoFormatExpression = "Purchase Header"."Currency Code";
+                    AutoFormatType = 2;
                 }
                 column(UnitPrice_PurchLine_Lbl; UnitPriceLbl)
                 {
@@ -946,6 +954,11 @@ report 50103 "Purchase Order Invoice"
                 if BuyFromContact.Get("Buy-from Contact No.") then;
                 if PayToContact.Get("Pay-to Contact No.") then;
 
+                // GkbLabs_Tv_26/03/2026 ++ compute symbol fresh — covers records where
+                // Currency Code was set before Currency Symbol field existed
+                CurrencySymbolTxt := "Purchase Header".GetCurrencySymbol("Currency Code");
+                // GkbLabs_Tv_26/03/2026 --
+
                 if not IsReportInPreviewMode() then begin
                     CODEUNIT.Run(CODEUNIT::"Purch.Header-Printed", "Purchase Header");
                     if ArchiveDocument then
@@ -1091,6 +1104,9 @@ report 50103 "Purchase Order Invoice"
         AllowInvDisctxt: Text[30];
         CompanyLogoPosition: Integer;
         ItemNo: Text;
+        // GkbLabs_Tv_26/03/2026 ++
+        CurrencySymbolTxt: Text[10];
+        // GkbLabs_Tv_26/03/2026 --
         VATAmountSpecificationLbl: Label 'VAT Amount Specification in ';
         LocalCurrentyLbl: Label 'Local Currency';
         ExchangeRateLbl: Label 'Exchange rate: %1/%2', Comment = '%1 = CurrExchRate."Relational Exch. Rate Amount", %2 = CurrExchRate."Exchange Rate Amount"';

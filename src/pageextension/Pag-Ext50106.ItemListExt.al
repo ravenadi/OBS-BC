@@ -45,7 +45,33 @@ pageextension 50106 "Item List Ext" extends "Item List"
             }
         }
         //DCS::HJ 20250611 --
+        //GkbLabs_Tv_26/03/2026 ++
+        addlast(Control1)
+        {
+            field(CreatedByUserName; CreatedByUserName)
+            {
+                ApplicationArea = All;
+                Caption = 'Created By';
+            }
+            field(ModifiedByUserName; ModifiedByUserName)
+            {
+                ApplicationArea = All;
+                Caption = 'Modified By';
+            }
+            field(SystemCreatedAt; Rec.SystemCreatedAt)
+            {
+                ApplicationArea = All;
+                Caption = 'Created At';
+            }
+            field(SystemModifiedAt; Rec.SystemModifiedAt)
+            {
+                ApplicationArea = All;
+                Caption = 'Modified At';
+            }
+        }
+        //GkbLabs_Tv_26/03/2026 --
     }
+
     // DCS ::HJ20250611 ++
     actions
     {
@@ -90,4 +116,24 @@ pageextension 50106 "Item List Ext" extends "Item List"
 
     }
     // DCS ::HJ20250611 --
+
+    var
+        CreatedByUserName: Text[100];
+        ModifiedByUserName: Text[100];
+        UserRec: Record User;
+
+    trigger OnAfterGetRecord()
+    begin
+        //GkbLabs_Tv_26/03/2026 ++
+        if UserRec.Get(Rec.SystemCreatedBy) then
+            CreatedByUserName := UserRec."User Name"
+        else
+            CreatedByUserName := '';
+
+        if UserRec.Get(Rec.SystemModifiedBy) then
+            ModifiedByUserName := UserRec."User Name"
+        else
+            ModifiedByUserName := '';
+        //GkbLabs_Tv_26/03/2026 --
+    end;
 }
